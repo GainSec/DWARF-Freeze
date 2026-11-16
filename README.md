@@ -9,6 +9,8 @@ checkout**. This repository holds only the Freeze files, at the paths they have 
 installing means copying them into a DWARF checkout. DWARF supplies the devnet layouts, the
 scenarios and the Amaru source the node is built from.
 
+Learn more information, see screenshots and more on this repo's gitpages [HERE](https://gainsec.github.io/DWARF-Freeze/)
+
 ## Requirements
 
 - Linux x86-64 for the devnet (the main target). macOS runs the demo, the UI and single nodes. On Windows, use WSL 2 with Docker available inside it; this is untested
