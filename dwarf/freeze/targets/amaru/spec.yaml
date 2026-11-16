@@ -1,0 +1,102 @@
+# What the stored hooks consist of, for `freeze-debugger port` (see applier.py).
+# Every file the patch touches is in exactly one group; `Cargo.lock` is rebuilt by the compile check.
+# A mandatory group that cannot be brought to another revision stops the port; an optional one is
+# left out and its capabilities are reported missing.
+base: v10.11.20260925
+crates: [amaru-freeze, amaru-freeze-macros]
+hooks:
+  - name: gate
+    about: "the runtime gate: every input, effect, result and state of every part of the node passes it"
+    mandatory: true
+    capabilities: ["internal_input", "internal_action", "internal_result", "internal_state", "inject", "inject:typed", "effects:edit", "state:stages", "time"]
+    files:
+      - Cargo.toml
+      - crates/amaru-pure-stage/Cargo.toml
+      - crates/amaru-pure-stage/src/effect.rs
+      - crates/amaru-pure-stage/src/freeze.rs
+      - crates/amaru-pure-stage/src/lib.rs
+      - crates/amaru-pure-stage/src/tokio.rs
+      - crates/amaru-pure-stage/src/types.rs
+      - crates/amaru-pure-stage/tests/freeze.rs
+  - name: start
+    about: "starting the agent with the node, and what the node says about itself"
+    mandatory: true
+    capabilities: []
+    files:
+      - crates/amaru/Cargo.toml
+      - crates/amaru/src/bin/amaru/cmd/node/run.rs
+  - name: node
+    about: "the network gate, re-signing, and the chain and ledger stores"
+    mandatory: false
+    capabilities: ["wire_in", "wire_out", "proto_in", "proto_out", "resign:devnet-header", "resign:devnet-block-body", "state:chain", "state:ledger", "state:chain:write", "state:ledger:write"]
+    files:
+      - crates/amaru-consensus/Cargo.toml
+      - crates/amaru-consensus/src/block_validator.rs
+      - crates/amaru-consensus/src/effects/ledger_effects.rs
+      - crates/amaru-node/Cargo.toml
+      - crates/amaru-node/src/freeze_connections.rs
+      - crates/amaru-node/src/freeze_stores.rs
+      - crates/amaru-node/src/lib.rs
+      - crates/amaru-node/src/stages/build_node.rs
+      - crates/amaru-ouroboros-traits/src/stores/chain_store/in_memory_chain_store.rs
+      - crates/amaru-ouroboros-traits/src/stores/chain_store/overriding_chain_store.rs
+      - crates/amaru-ouroboros-traits/src/stores/chain_store/write_chain_store.rs
+      - crates/amaru-protocols/Cargo.toml
+      - crates/amaru-protocols/src/blockfetch/initiator.rs
+      - crates/amaru-protocols/src/blockfetch/responder.rs
+      - crates/amaru-protocols/src/chainsync/mod.rs
+      - crates/amaru-protocols/src/connection.rs
+      - crates/amaru-protocols/src/freeze.rs
+      - crates/amaru-protocols/src/lib.rs
+      - crates/amaru-protocols/src/mux.rs
+      - crates/amaru-protocols/src/protocol/miniprotocol.rs
+      - crates/amaru-protocols/src/protocol/pipeline.rs
+      - crates/amaru-protocols/src/resign.rs
+      - crates/amaru-protocols/src/store_effects.rs
+      - crates/amaru-protocols/tests/resign.rs
+      - crates/amaru-stores/src/rocksdb/consensus/write_chain_store.rs
+      - crates/amaru-stores/src/rocksdb/mod.rs
+      - crates/amaru-stores/src/rocksdb/transaction.rs
+  - name: consensus-probes
+    about: "probes in the consensus stages"
+    mandatory: false
+    capabilities: ["probes:consensus"]
+    files:
+      - crates/amaru-consensus/src/stages/adopt_chain/mod.rs
+      - crates/amaru-consensus/src/stages/fetch_blocks/mod.rs
+      - crates/amaru-consensus/src/stages/mempool/stage.rs
+      - crates/amaru-consensus/src/stages/peer_selection/mod.rs
+      - crates/amaru-consensus/src/stages/select_chain/mod.rs
+      - crates/amaru-consensus/src/stages/track_peers/mod.rs
+      - crates/amaru-consensus/src/stages/validate_block/mod.rs
+  - name: header-probes
+    about: "probes in header validation"
+    mandatory: false
+    capabilities: ["probes:header"]
+    files:
+      - crates/amaru-ouroboros/Cargo.toml
+      - crates/amaru-ouroboros/src/kes/mod.rs
+      - crates/amaru-ouroboros/src/praos/header.rs
+      - crates/amaru-ouroboros/tests/validation.rs
+  - name: ledger-probes
+    about: "probes in the ledger rules and script evaluation"
+    mandatory: false
+    capabilities: ["probes:ledger"]
+    files:
+      - crates/amaru-ledger/Cargo.toml
+      - crates/amaru-ledger/src/lib.rs
+      - crates/amaru-ledger/src/rules.rs
+      - crates/amaru-ledger/src/rules/block.rs
+      - crates/amaru-ledger/src/rules/transaction/phase_one/mod.rs
+      - crates/amaru-ledger/src/rules/transaction/phase_one/scripts.rs
+      - crates/amaru-ledger/src/rules/transaction/phase_two/mod.rs
+      - crates/amaru-ledger/src/state.rs
+      - crates/amaru-ledger/src/state/volatile/overlay.rs
+  - name: trace
+    about: "lets the stores, mempool and network crates report calls of their functions"
+    mandatory: false
+    capabilities: ["trace:stores"]
+    files:
+      - crates/amaru-mempool/Cargo.toml
+      - crates/amaru-network/Cargo.toml
+      - crates/amaru-stores/Cargo.toml

@@ -1,0 +1,21 @@
+# A peer script: run it against the scripted peer, not the node under test.
+#
+#   freeze-debugger devnet up --profile scripted-peer
+#   freeze-debugger template dwarf/freeze/examples/peer-inflated-height.yaml --network devnet --node amaru-relay-1
+#   freeze-debugger devnet attach            # watch the node under test (amaru-relay-2) take it
+#
+# The peer (amaru-relay-1) sends the node under test one header whose block number is far
+# ahead of the chain. The altered header really crosses the wire, on the closed devnet only.
+name: peer sends an inflated block number
+description: One RollForward leaves the scripted peer with its block number raised by 5000.
+rules:
+  - name: inflated block number
+    # A node serving a protocol reports it with 32768 added to its number: 32770 is chain
+    # sync as the serving side, and message 2 of it is RollForward.
+    when: kind=proto_out and type=ouroboros/32770 and [0]=2
+    field: header_body.block_number
+    values: ["add:5000"]
+    mode: each
+    # Outbound scripted-peer KES repair is not implemented; this scenario intentionally sends
+    # the invalid signature as a negative control.
+    stale_negative_control: true

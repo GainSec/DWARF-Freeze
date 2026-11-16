@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freeze TUI mockups</title>
+<style>
+:root{
+  --bg:var(--wb-bg,#050b14); --surface:var(--wb-surface,#0c1826); --ink:var(--wb-ink,#e4f6ff);
+  --muted:var(--wb-muted,#7fa3bd); --rule:var(--wb-rule,#1d3a52); --ice:var(--wb-accent,#5fe0ff);
+  --red:var(--wb-accent-2,#ff3b4e); --ok:var(--wb-success,#7dffd6); --deep:#081220; --frost:#bfefff;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Avenir Next","Segoe UI",Helvetica,Arial,sans-serif;
+  background-image:radial-gradient(1200px 500px at 80% -10%,rgba(95,224,255,.10),transparent 60%)}
+.wrap{max-width:1500px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 2px;font-weight:600}
+h1 b{color:var(--ice);font-weight:600}
+.sub{color:var(--muted);margin:0 0 16px;max-width:70ch}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tabs button{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--surface);color:var(--muted);
+  border:1px solid var(--rule);padding:8px 12px;border-radius:3px;cursor:pointer}
+.tabs button[aria-selected=true]{color:var(--deep);background:var(--ice);border-color:var(--ice)}
+.note{color:var(--muted);font-size:13.5px;margin:0 0 10px;max-width:90ch}
+.note b{color:var(--frost);font-weight:600}
+/* terminal */
+.term{font:12.5px/1.5 var(--mono);background:var(--deep);border:1px solid var(--rule);border-radius:8px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(95,224,255,.06),0 0 40px rgba(95,224,255,.10)}
+.bar{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;padding:6px 10px;background:#0a1a2b;border-bottom:1px solid var(--rule)}
+.bar .t{color:var(--ice);font-weight:700;letter-spacing:.1em}
+.pill{padding:0 7px;border-radius:2px;font-weight:700}
+.pill.ice{background:var(--ice);color:var(--deep)} .pill.red{background:var(--red);color:#fff} .pill.dim{border:1px solid var(--rule);color:var(--muted)}
+.keys{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 10px;border-top:1px solid var(--rule);background:#0a1a2b;color:var(--muted)}
+.keys kbd{color:var(--deep);background:var(--frost);padding:0 5px;border-radius:2px;font:700 11.5px var(--mono);margin-right:4px}
+.grid{display:grid;grid-template-columns:minmax(210px,1fr) minmax(360px,2.1fr) minmax(300px,1.6fr);min-height:520px}
+.grid.two{grid-template-columns:minmax(220px,1fr) minmax(300px,1.4fr) minmax(320px,1.8fr)}
+.pane{border-right:1px solid var(--rule);min-width:0;display:flex;flex-direction:column}
+.pane:last-child{border-right:0}
+.ph{padding:4px 10px;color:var(--ice);border-bottom:1px solid var(--rule);letter-spacing:.12em;font-weight:700;font-size:11.5px;display:flex;justify-content:space-between;gap:8px}
+.ph span{color:var(--muted);font-weight:500;letter-spacing:0}
+.pb{padding:6px 10px;overflow-x:auto;white-space:pre;flex:1}
+.m{color:var(--muted)} .i{color:var(--ice)} .r{color:var(--red)} .g{color:var(--ok)} .f{color:var(--frost)} .y{color:#ffd479}
+.here{background:linear-gradient(90deg,rgba(95,224,255,.22),rgba(95,224,255,.04));display:inline-block;width:100%;outline:1px solid rgba(95,224,255,.35)}
+.sel{background:rgba(95,224,255,.14);display:inline-block;width:100%}
+.tam{background:rgba(255,59,78,.16);display:inline-block;width:100%}
+.cmd{border-top:1px solid var(--rule);padding:6px 10px;white-space:pre;overflow-x:auto}
+.cur{background:var(--ice);color:var(--deep)}
+.grid.simple{grid-template-columns:minmax(380px,2fr) minmax(280px,1fr);min-height:0}
+.big{font-size:14px;line-height:1.75}
+u{text-decoration-color:var(--ice);text-underline-offset:3px;color:var(--frost)}
+.bigkeys{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-top:1px solid var(--rule);background:#0a1a2b}
+.bk{display:flex;flex-direction:column;gap:1px;padding:8px 12px;border:1px solid var(--ice);border-radius:4px;min-width:150px;flex:1}
+.bk.ice{background:rgba(95,224,255,.14)} .bk.dim{border-color:var(--rule);flex:.7}
+.bk kbd{align-self:flex-start;color:var(--deep);background:var(--frost);padding:0 6px;border-radius:2px;font:700 11.5px var(--mono)}
+.bk b{color:var(--ink);font-size:13.5px} .bk i{color:var(--muted);font-style:normal;font-size:11.5px}
+@media(max-width:980px){.grid.simple{grid-template-columns:1fr}}
+.map{padding:22px 14px 8px}
+.lane{display:flex;align-items:stretch;gap:6px;overflow-x:auto;padding-bottom:6px}
+.st{flex:1 0 92px;border:1px solid var(--rule);border-radius:4px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;justify-content:space-between;min-height:118px;color:var(--muted)}
+.st h4{margin:0;font:700 11.5px var(--mono);letter-spacing:.1em;color:inherit}
+.st small{font-size:11px;color:var(--muted)} .st .dots{font-size:16px} .st .mem{font-size:11.5px;line-height:1.6;color:var(--frost)}
+.st.side{flex-basis:118px;border-style:dashed;color:var(--frost)}
+.st.done{color:var(--ok);border-color:rgba(125,255,214,.35)}
+.st.now{color:var(--ice);border:2px solid var(--ice);background:rgba(95,224,255,.12);box-shadow:0 0 22px rgba(95,224,255,.35)}
+.st.bad{color:var(--red);border:2px solid var(--red);background:rgba(255,59,78,.10)}
+.blk{font-size:30px;line-height:1;color:var(--frost)} .blk b{font-size:15px;vertical-align:top}
+.arr{align-self:center;color:var(--ok);flex:0 0 auto}
+.say{text-align:center;padding:22px 10px 16px}
+.big1{font:600 20px/1.35 "Avenir Next","Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink)}
+.big2{font:15px/1.5 "Avenir Next","Segoe UI",Helvetica,Arial,sans-serif;color:var(--muted);margin-top:6px}
+.tools{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule);background:#081626}
+.tools b{padding:6px 14px;color:var(--muted);font-weight:600;border-right:1px solid var(--rule)}
+.tools b.on{color:var(--deep);background:var(--ice)}
+.act{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--rule)}
+.act .sp{flex:1}
+.btn{border:1px solid var(--rule);border-radius:3px;padding:2px 10px;color:var(--ink);background:#0d2034;font-weight:600}
+.btn.ice{background:var(--ice);color:var(--deep);border-color:var(--ice)} .btn.on{color:var(--ice);border-color:var(--ice)}
+.grid.three{grid-template-columns:minmax(250px,1.1fr) minmax(380px,2.2fr) minmax(270px,1.3fr);min-height:440px}
+.grid.half{grid-template-columns:1fr 1fr;min-height:0;border-top:1px solid var(--rule)}
+@media(max-width:980px){.grid.three,.grid.half{grid-template-columns:1fr}}
+.k{color:#9db8ff} .ty{color:#ffd479} .sg{color:#7dffd6} .fx{color:#e0a6ff}
+[data-tip]{cursor:help;border-bottom:1px dotted rgba(191,239,255,.35)}
+.hint{color:var(--muted)}
+#tip{position:fixed;z-index:9;max-width:320px;padding:8px 10px;background:#0f2a42;color:var(--ink);border:1px solid var(--ice);border-radius:4px;
+ font:13px/1.45 "Avenir Next","Segoe UI",Helvetica,Arial,sans-serif;white-space:normal;box-shadow:0 0 18px rgba(95,224,255,.3);pointer-events:none;display:none}
+section[hidden]{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 0 0;font:12px var(--mono);color:var(--muted)}
+.fb{margin-top:26px;border:1px solid var(--rule);border-radius:8px;padding:14px;background:var(--surface)}
+.fb h2{margin:0 0 6px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ice)}
+textarea{width:100%;min-height:90px;background:var(--deep);color:var(--ink);border:1px solid var(--rule);border-radius:4px;padding:8px;font:13px var(--mono)}
+.fb button{margin-top:8px;font:700 12px var(--mono);letter-spacing:.08em;background:var(--ice);color:var(--deep);border:0;padding:8px 14px;border-radius:3px;cursor:pointer}
+#sent{margin-left:10px;color:var(--ok);font:12px var(--mono)}
+@media(max-width:980px){.grid,.grid.two{grid-template-columns:1fr}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>DWARF <b>Freeze</b> — terminal mockups</h1>
+<p class="sub">Laid out like an intercepting proxy: Intercept is the default, with History and Repeater beside it and the deeper node screens one tab further. The example data is illustrative but uses Amaru's stage, effect and store names from v10.11.</p>
+
+<div class="tabs" role="tablist">
+  <button data-t="sA" aria-selected="true">★ Intercept (default)</button>
+  <button data-t="sB" aria-selected="false">History</button>
+  <button data-t="sC" aria-selected="false">Repeater</button>
+  <button data-t="s1" aria-selected="false">Internals</button>
+  <button data-t="s2" aria-selected="false">Freeze points</button>
+  <button data-t="s3" aria-selected="false">State</button>
+  <button data-t="s4" aria-selected="false">Intruder / Tools</button>
+</div>
+
+<!-- ============ INTERCEPT ============ -->
+<section id="sA">
+<p class="note"><b>The default view, modelled on an intercepting proxy.</b> The node is the "server". Everything going into it or moving inside it is an item you can hold, read, edit, forward or drop. Tool tabs run across the top the same way Proxy, Repeater and Intruder do. Node-internal detail is in the Inspector on the right, or one tab over, never in the way.</p>
+<div class="term">
+<div class="bar"><span class="t">❄ DWARF FREEZE</span><span>target <span class="f">amaru-1</span> · amaru v10.11 · devnet (3 nodes)</span><span>slot <span class="f">91,440,112</span> · tip <span class="f">#4,118,901</span></span><span class="pill red">1 edit</span></div>
+<div class="tools"><b class="on">Intercept</b><b>History</b><b>Repeater</b><b>Intruder</b><b>State</b><b>Freeze points</b><b>Internals</b><b>Tools</b></div>
+<div class="act"><span class="btn ice">Forward</span><span class="btn">Drop</span><span class="btn on">❄ Intercept is on</span><span class="btn">Action ▾</span><span class="btn">Send to Repeater</span><span class="btn">Send to Intruder</span><span class="sp"></span><span class="m">holding: [x] from peers  [x] to peers  [x] between stages  [ ] store writes  [ ] timers</span></div>
+<div class="grid three">
+  <div class="pane">
+    <div class="ph">HELD <span>4 items · node frozen</span></div>
+<div class="pb"><span class="m"> #      dir  from → to              type</span>
+<span class="sel"> 48212  <span class="i">in </span>  .12 → <span class="sg" data-tip="The stage that decides whether a full block is valid.">validate block</span>   <span class="ty">Block</span></span>
+ 48213  <span class="i">in </span>  .13 → <span class="sg" data-tip="The stage that follows what each neighbour says its chain is.">track peers</span>      <span class="ty" data-tip="A neighbour says: here is the next block on my chain.">RollForward</span>
+ 48214  <span class="i">in </span>  .14 → <span class="sg">track peers</span>      <span class="ty" data-tip="A neighbour says: undo back to an earlier block, my chain went a different way.">RollBackward</span> <span class="i">◆</span>
+ 48215  <span class="i">in </span>  .12 → <span class="sg" data-tip="The waiting room for transactions not yet in a block.">mempool</span>          <span class="ty" data-tip="A neighbour lists transactions it can offer.">ReplyTxIds</span>
+
+<span class="m">Forward releases the selected item and
+freezes again on the next one that
+matches the "holding" boxes above.</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">ITEM 48212 · Block from 10.0.0.12 <span><b class="i">Pretty</b> · CBOR · Hex</span></div>
+<div class="pb"><span class="m">  1</span>  <span class="ty" data-tip="A block: a batch of transactions one stake pool produced for one slot.">Block</span> <span class="f">#4,118,902</span>                         <span class="m">conway · 71,204 bytes</span>
+<span class="m">  2</span>   <span class="k" data-tip="The small signed label on the front of a block. Nodes check this first, before downloading the rest.">header</span>
+<span class="m">  3</span>     <span class="k" data-tip="The one-second time slot this block claims to have been made in.">slot</span>          91440112
+<span class="m">  4</span>     <span class="k" data-tip="Hash of the block this one builds on. This is what links blocks into a chain.">previous block</span>  <span class="f">3f9a…c21e</span>
+<span class="m">  5</span>     <span class="k" data-tip="The stake pool that made this block.">issuer</span>        pool1<span class="f">qz7…m4k</span>
+<span class="m">  6</span>     <span class="k" data-tip="Proof that the pool really won the lottery to make a block in this slot. A forged one means anyone could make blocks.">vrf proof</span>     <span class="f">80b1…</span> <span class="m">(80 bytes)</span>
+<span class="m">  7</span>     <span class="k" data-tip="Which short-lived signing key the pool used. Old periods must be refused, or stolen old keys could sign blocks.">kes period</span>    705
+<span class="m">  8</span>     <span class="k" data-tip="Fingerprint of all the transactions. Ties the header to the body, so the body cannot be swapped.">body hash</span>     <span class="f">c07e…91aa</span>
+<span class="m">  9</span>   <span class="k" data-tip="The payments and other actions carried in this block.">transactions</span>  <span class="m">[12]</span>
+<span class="m"> 10</span>    ▸ [0]  <span class="f">a91c…</span>   2 in → 2 out
+<span class="m"> 11</span>    ▾ [1]  <span class="f">5d02…</span>   1 in → 3 out   <span class="ty" data-tip="This transaction runs a smart contract (Plutus version 3).">plutus v3</span>
+<span class="m"> 12</span>        <span class="k" data-tip="The unspent outputs this transaction spends. Each must exist and not already be spent.">inputs</span>     <span class="f">77e0…#0</span>
+<span class="m"> 13</span>        <span class="k" data-tip="Where the money goes. Each becomes a new unspent output.">outputs</span>    <span class="m">[3]</span> ▸
+<span class="tam"><span class="m"> 14</span>        <span class="k" data-tip="What the sender pays to have this processed. Must be at least the minimum the protocol works out from size and script cost.">fee</span>        <span class="r">1</span>                          <span class="m">was 301204</span></span>
+<span class="m"> 15</span>        <span class="k" data-tip="Arguments handed to the smart contract, with the compute budget it is allowed.">redeemers</span>  <span class="m">[1]</span> ▸   <span class="k" data-tip="Memory and CPU the contract may use. Exceeding it fails the transaction.">budget</span> mem 412000 cpu 190000000
+<span class="m"> 16</span>        <span class="k" data-tip="Money forfeited if the smart contract fails, so failed scripts still cost something.">collateral</span> <span class="m">[1]</span> ▸
+<span class="m"> 17</span>    ▸ [2]  <span class="f">e3b7…</span>   <span class="ty" data-tip="Points a wallet's stake at a pool.">stake delegation</span>
+<span class="m"> 18</span>    ▸ [3..11]
+
+<span class="hint">ⓘ hover or move the cursor onto any name to see what it is and why it matters</span>
+<span class="m">search ▏                       0 matches   ⚠ body hash is stale · </span><span class="i">re-seal</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">INSPECTOR</div>
+<div class="pb"><span class="i">Item</span>
+ direction   peer → node
+ peer        10.0.0.12:3001
+ protocol    <span class="ty" data-tip="The mini-protocol peers use to download full blocks.">block fetch</span>
+ going to    <span class="sg">validate block</span>
+ cold spot   <span class="i">◆ block-check</span>
+
+<span class="i">In plain words</span>
+ <span class="m">A neighbour delivered a full block.
+ The node is about to decide whether
+ every transaction in it is valid.</span>
+
+<span class="i">Selected field</span>
+ path   <span class="k">transactions[1] › fee</span>
+ type   lovelace (uint)
+ value  <span class="r">1</span>   <span class="m">original 301204</span>
+ <span class="m">min fee for this tx: 298,811</span>
+
+<span class="i">What the node will do with it</span>
+ 1 <span class="fx" data-tip="Runs every ledger rule against the block: fees, signatures, scripts, balances.">validate block</span>
+ 2 → <span class="sg" data-tip="The stage that makes a valid block part of the node's chain.">adopt chain</span>  <span class="m">if valid</span>
+ 3 ledger: utxo −14 +27, fees +3.1 ₳
+
+<span class="i">Edits on this item</span> <span class="m">(1)</span>
+ fee 301204 → 1          <span class="m">undo</span></div>
+  </div>
+</div>
+<div class="keys"><span><kbd>f</kbd>forward</span><span><kbd>d</kbd>drop</span><span><kbd>i</kbd>intercept on/off</span><span><kbd>e</kbd>edit field</span><span><kbd>r</kbd>to Repeater</span><span><kbd>u</kbd>forward until…</span><span><kbd>tab</kbd>next pane</span><span><kbd>1-8</kbd>tool tabs</span><span><kbd>?</kbd>help</span></div>
+</div>
+<div class="legend"><span><span class="k">blue</span> field names</span><span><span class="ty">amber</span> kinds of thing</span><span><span class="sg">mint</span> parts of the node</span><span><span class="fx">violet</span> actions the node takes</span><span><span class="r">red</span> changed by you</span></div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="sB" hidden>
+<p class="note"><b>History.</b> The complete log of everything the node received, sent and did, as one filterable table. Select a row and the bottom half shows the pair that matters for security work: what went in, and how the node reacted. This is the "complete logs" part of the feature.</p>
+<div class="term">
+<div class="tools"><b>Intercept</b><b class="on">History</b><b>Repeater</b><b>Intruder</b><b>State</b><b>Freeze points</b><b>Internals</b><b>Tools</b></div>
+<div class="act"><span class="m">Filter:</span> <span class="f">showing messages + verdicts · hiding keepalive · peer: any · ◆ any</span><span class="sp"></span><span class="m">48,211 items · 2 edited · 1 dropped</span></div>
+<div class="pb"><span class="m"> #       time      dir  peer   stage            type             about                 size    node said     took    ◆</span>
+ 48196   10:41:58  <span class="i">in </span>  .12    mempool          Tx               5d02…                 1,204   <span class="g">accepted</span>      2.1ms   tx-check
+ 48203   10:42:01  <span class="i">in </span>  .12    track_peers      RollForward      hdr #4,118,902          912   <span class="g">accepted</span>      412µs   header-check
+ 48208   10:42:01  <span class="m">— </span>   —      select_chain     NewTip           #4,118,902                —   <span class="g">extend</span>         38µs   chain-choice
+ 48210   10:42:01  <span class="y">out</span>  .12    fetch_blocks     RequestRange     #4,118,902               74   —               —
+<span class="sel"> 48212   10:42:02  <span class="i">in </span>  .12    validate_block   Block            #4,118,902  <span class="r">edited</span>   71,204   <span class="r">rejected</span>      9.8ms   block-check</span>
+ 48213   10:42:02  <span class="i">in </span>  .13    track_peers      RollForward      hdr #4,118,903          912   <span class="g">accepted</span>      398µs   header-check
+ 48214   10:42:02  <span class="i">in </span>  .14    track_peers      RollBackward     to #4,118,899            40   <span class="y">ignored</span>        21µs   rollback
+ 48216   10:42:02  <span class="m">— </span>   —      track_peers      PeerAdversarial  .12                       —   <span class="r">peer banned</span>     9µs   peer-verdict
+ 48217   10:42:02  <span class="y">out</span>  .12    manager          Close            —                         0   —               —</div>
+<div class="grid half">
+  <div class="pane">
+    <div class="ph">WHAT WENT IN <span><b class="i">Pretty</b> · CBOR · Hex · Diff vs original</span></div>
+<div class="pb">Block <span class="f">#4,118,902</span>  from 10.0.0.12 via blockfetch
+ transactions[1]
+<span class="tam">   fee   <span class="r">1</span>      <span class="m">original 301204</span></span>
+ <span class="m">71,204 bytes · 12 transactions · body_hash re-sealed</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">WHAT THE NODE DID <span><b class="i">Summary</b> · Effects · Store changes · Log lines</span></div>
+<div class="pb">verdict   <span class="r">rejected</span>  <span class="m">9.8ms</span>
+reason    FeeTooSmall { minimum: 298811, actual: 1 }  <span class="m">tx 5d02…</span>
+then      block marked invalid
+          peer 10.0.0.12 marked adversarial → connection closed
+stores    <span class="g">no writes</span>
+<span class="m">7 effects · 3 log lines · 0 panics</span></div>
+  </div>
+</div>
+<div class="keys"><span><kbd>/</kbd>filter</span><span><kbd>enter</kbd>open</span><span><kbd>r</kbd>to Repeater</span><span><kbd>c</kbd>compare two rows</span><span><kbd>j</kbd>jump node back to here</span><span><kbd>E</kbd>export</span></div>
+</div>
+</section>
+
+<!-- ============ REPEATER ============ -->
+<section id="sC" hidden>
+<p class="note"><b>Repeater.</b> Take any item from Intercept or History, change it, send it to the node again and read the reaction, as many times as you like. Each send starts from the same saved node state, so results are comparable.</p>
+<div class="term">
+<div class="tools"><b>Intercept</b><b>History</b><b class="on">Repeater</b><b>Intruder</b><b>State</b><b>Freeze points</b><b>Internals</b><b>Tools</b></div>
+<div class="act"><span class="btn ice">Send</span><span class="btn">◂</span><span class="btn">▸</span><span class="m">tabs:</span> <span class="f">[1 block 4118902]</span> <span class="m">[2 rollback .14] [3 tx 5d02] [+]</span><span class="sp"></span><span class="m">start from:</span> <span class="f">cryo-tube "step-48211"</span> <span class="m">· as peer</span> <span class="f">10.0.0.12</span></div>
+<div class="grid half">
+  <div class="pane">
+    <div class="ph">SEND THIS <span><b class="i">Pretty</b> · CBOR · Hex</span></div>
+<div class="pb">Block <span class="f">#4,118,902</span>
+  header        ▸
+  transactions  <span class="m">[12]</span>
+   ▾ [1]  <span class="f">5d02…</span>
+       inputs    <span class="f">77e0…#0</span>
+       outputs   <span class="m">[3]</span> ▸
+<span class="tam">       fee       <span class="r">298810</span>              <span class="m">original 301204</span></span>
+       redeemers <span class="m">[1]</span> ▸
+<span class="m">[x] re-seal hashes after edit   [ ] re-sign (needs devnet keys)</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">NODE'S REACTION <span>send 4 of 4 · 9.6ms</span></div>
+<div class="pb">verdict   <span class="r">rejected</span>
+reason    FeeTooSmall { minimum: 298811, actual: 298810 }
+stores    <span class="g">no writes</span>
+
+<span class="m">previous sends</span>
+ 1  fee 1          <span class="r">rejected</span>  FeeTooSmall
+ 2  fee 0          <span class="r">rejected</span>  FeeTooSmall
+ 3  fee 298811     <span class="g">accepted</span>  block adopted
+ 4  fee 298810     <span class="r">rejected</span>  FeeTooSmall     <span class="m">← boundary is exact</span></div>
+  </div>
+</div>
+<div class="keys"><span><kbd>ctrl+enter</kbd>send</span><span><kbd>e</kbd>edit</span><span><kbd>c</kbd>compare sends</span><span><kbd>o</kbd>open reaction in Internals</span><span><kbd>I</kbd>to Intruder</span></div>
+</div>
+</section>
+
+<!-- ============ SCREEN 1 ============ -->
+<section id="s1" hidden>
+<p class="note"><b>The main view.</b> Left: the node's anatomy, with what is waiting at each stage. Middle: one timeline with the past above the cursor and the queued future below it. Right: whatever is under the cursor, decoded as Cardano data and editable. Red always means you changed something.</p>
+<div class="term">
+<div class="bar"><span class="t">❄ DWARF FREEZE</span><span>amaru v10.11 · <span class="f">amaru-1</span> of 3 · devnet</span><span class="pill ice">ON ICE</span><span>step <span class="f">48,212</span></span><span>epoch <span class="f">212</span> · slot <span class="f">91,440,112</span></span><span>tip <span class="f">#4,118,901</span> 3f9a…c21e</span><span class="pill red">1 TAMPER</span><span class="pill dim">topology frozen</span></div>
+<div class="grid">
+  <div class="pane">
+    <div class="ph">ANATOMY <span>waiting</span></div>
+<div class="pb"><span class="m">STAGES</span>
+ manager                  <span class="m">0</span>
+ ├─ peer_selection        <span class="m">0</span>
+ ├─ peer <span class="f">10.0.0.12:3001</span>
+ │   ├─ chainsync         <span class="y">1</span>
+ │   ├─ blockfetch        <span class="m">0</span>
+ │   ├─ txsubmission      <span class="y">3</span>
+ │   └─ keepalive         <span class="m">0</span>
+ ├─ peer <span class="f">10.0.0.13:3001</span>   <span class="m">▸</span>
+ └─ peer <span class="f">10.0.0.14:3001</span>   <span class="m">▸</span>
+ track_peers              <span class="y">2</span>
+ select_chain             <span class="m">0</span>
+ fetch_blocks             <span class="m">0</span>
+<span class="here"><span class="i">❄validate_block</span>           <span class="i">●</span></span>
+ adopt_chain              <span class="m">0</span>
+ mempool                  <span class="y">14 tx</span>
+ block_source             <span class="m">0</span>
+
+<span class="m">TIMERS</span>
+ keepalive .12        <span class="m">4.1s</span>
+ peer churn           <span class="m">212s</span>
+
+<span class="m">STORES</span>
+ ledger   <span class="m">11 columns ▸</span>
+ chain    <span class="m">headers blocks ▸</span>
+ mempool  <span class="m">14 tx ▸</span>
+
+<span class="m">CRYO-TUBES (saved states)</span>
+ before-epoch-213
+ clean-sync-4.1M</div>
+  </div>
+  <div class="pane">
+    <div class="ph">TIMELINE <span>granularity: every effect ▾</span></div>
+<div class="pb"><span class="m">  step   stage           what happened</span>
+<span class="m">48,203</span>  chainsync .12   <span class="g">recv</span>  RollForward hdr <span class="f">#4,118,902</span>
+<span class="m">48,204</span>  track_peers     <span class="g">in  </span>  FromUpstream(RollForward)
+<span class="m">48,205</span>  track_peers     <span class="g">fx  </span>  HasHeaderEffect <span class="m">→ false</span>
+<span class="m">48,206</span>  track_peers     <span class="g">fx  </span>  ValidateHeaderEffect <span class="m">→ accepted 412µs</span>   <span class="i">◆ header-check</span>
+<span class="m">48,207</span>  track_peers     <span class="g">fx  </span>  StoreValidatedHeaderEffect
+<span class="m">48,208</span>  select_chain    <span class="g">in  </span>  NewTip <span class="f">#4,118,902</span> <span class="m">from .12</span>             <span class="i">◆ chain-choice</span>
+<span class="m">48,209</span>  fetch_blocks    <span class="g">fx  </span>  SelectPeersForFetchEffect <span class="m">→ [.12]</span>
+<span class="m">48,210</span>  blockfetch .12  <span class="g">send</span>  RequestRange <span class="f">#4,118,902</span>
+<span class="m">48,211</span>  blockfetch .12  <span class="g">recv</span>  Block <span class="m">71,204 bytes</span>                    <span class="i">◆ wire-in</span>
+<span class="here"><span class="i">48,212  validate_block  ❄ about to run  ValidateBlockEffect  #4,118,902</span>   <span class="i">◆ block-check</span></span>
+<span class="m">─────── not yet happened ─────────────────────────────────────────────</span>
+<span class="m">  next</span>  validate_block  <span class="m">will return to</span> adopt_chain
+<span class="m">queued</span>  track_peers     <span class="y">in  </span>  FromUpstream(RollForward <span class="f">#4,118,903</span>) <span class="m">.13</span>
+<span class="m">queued</span>  track_peers     <span class="y">in  </span>  FromUpstream(RollBackward <span class="f">#4,118,899</span>) <span class="m">.14</span>   <span class="i">◆ rollback</span>
+<span class="m">queued</span>  chainsync .12   <span class="y">recv</span>  <span class="m">112 bytes buffered</span>
+<span class="m">queued</span>  txsubmission.12 <span class="y">recv</span>  ReplyTxIds <span class="m">×3</span>
+<span class="m"> timer</span>  keepalive .12   <span class="m">fires in 4.1s of node time</span>
+
+<span class="m">call stack at freeze (function probes)</span>
+ amaru_consensus::stages::validate_block::stage
+ └ amaru_consensus::effects::ledger_effects::validate_block
+   └ amaru_ledger::rules::block::execute       <span class="m">← Enter to step in</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">SPECIMEN <span>decoded ▾ · cbor · hex</span></div>
+<div class="pb"><span class="i">Block #4,118,902</span>  <span class="m">conway · 71,204 bytes</span>
+ hash      <span class="f">8be1…04d7</span>
+ slot      91,440,112   <span class="m">epoch 212 · slot-in-epoch 288,112</span>
+ parent    <span class="f">3f9a…c21e</span>   <span class="g">✓ is current tip</span>
+ issuer    pool1<span class="f">qz7…m4k</span>  <span class="m">stake 0.41%</span>
+ vrf       <span class="g">✓ leader for slot</span>
+ kes       period 705  <span class="g">✓</span>   op-cert #12
+ body hash <span class="f">c07e…91aa</span>
+
+ transactions <span class="m">12</span>
+  ▸ tx 0  <span class="f">a91c…</span>  2 in → 2 out   fee 0.174 ₳
+<span class="sel">  ▾ tx 1  <span class="f">5d02…</span>  1 in → 3 out   plutus v3</span>
+     inputs
+      <span class="f">77e0…#0</span>  1,204.50 ₳  <span class="m">addr1q9…</span>
+     outputs
+      #0  1,000.00 ₳  <span class="m">addr1w8… (script)</span>
+      #1    204.20 ₳  <span class="m">addr1q9…</span>
+<span class="tam">     fee      <span class="r">0.000001 ₳</span>   <span class="m">was 0.301204 ₳</span>  <span class="r">TAMPERED</span></span>
+     ex units mem 412,000 · cpu 190M
+     redeemers 1 · datums 1 · collateral 1
+  ▸ tx 2  <span class="f">e3b7…</span>  stake delegation
+  ▸ tx 3 … 11
+
+<span class="m">ledger will touch</span>
+ utxo −14 +27 · accounts 2 · pools 0 · fees pot +3.1 ₳</div>
+  </div>
+</div>
+<div class="cmd"><span class="m">10:42:07</span> frozen at <span class="i">◆ block-check</span> (freeze point #3: block.slot ≥ 91,440,100)
+<span class="m">10:42:31</span> <span class="r">tamper</span> block.tx[1].fee 301204 → 1 lovelace  <span class="m">(body hash now stale — re-seal? y/n)</span>
+<span class="i">freeze❯</span> until stage=adopt_chain and block.number=4118902<span class="cur"> </span></div>
+<div class="keys"><span><kbd>F5</kbd>thaw</span><span><kbd>F10</kbd>step</span><span><kbd>F11</kbd>step in</span><span><kbd>u</kbd>run until…</span><span><kbd>b</kbd>freeze point</span><span><kbd>e</kbd>edit</span><span><kbd>d</kbd>drop msg</span><span><kbd>i</kbd>inject msg</span><span><kbd>s</kbd>save cryo-tube</span><span><kbd>/</kbd>search</span><span><kbd>t</kbd>tools</span><span><kbd>?</kbd>help</span></div>
+</div>
+<div class="legend"><span><span class="i">◆</span> cold spot (a place we tagged as interesting)</span><span><span style="color:var(--ok)">green</span> = already happened</span><span><span style="color:#ffd479">amber</span> = queued, not yet processed</span><span><span class="r">red</span> = changed by you</span></div>
+</section>
+
+<!-- ============ SCREEN 2 ============ -->
+<section id="s2" hidden>
+<p class="note"><b>Where it stops.</b> The node can stop at every single step; you choose how fine that is. Freeze points are conditions, written against Cardano things (slot, block number, peer, tx hash) and not against memory addresses. Cold spots are the named places we decided matter, and each can be switched on as a group.</p>
+<div class="term">
+<div class="bar"><span class="t">❄ FREEZE POINTS</span><span class="pill dim">THAWED · running</span><span>step <span class="f">51,880</span></span><span>slot <span class="f">91,440,390</span></span></div>
+<div class="grid two">
+  <div class="pane">
+    <div class="ph">STEP SIZE <span>how fine</span></div>
+<div class="pb"> ( ) cold spots only
+ ( ) every message between stages
+<span class="sel"> (●) every effect            <span class="m">default</span></span>
+ ( ) every function           <span class="m">probes</span>
+ ( ) every source line        <span class="m">lldb</span>
+
+<span class="m">SCOPE</span>
+ [x] this node
+ [x] freeze whole topology with it
+ [ ] let peers keep running
+
+<span class="m">WHEN FROZEN, PEERS SEE</span>
+ (●) nothing — clocks frozen too
+ ( ) a slow node — timeouts fire</div>
+  </div>
+  <div class="pane">
+    <div class="ph">COLD SPOTS <span>tagged places</span></div>
+<div class="pb"> on  tag              hits
+ [x] <span class="i">◆ wire-in</span>         9,412  <span class="m">bytes off a socket</span>
+ [ ] <span class="i">◆ wire-out</span>        8,877
+ [x] <span class="i">◆ cbor-decode</span>     9,412  <span class="m">before parsing</span>
+ [x] <span class="i">◆ header-check</span>      311
+ [x] <span class="i">◆ chain-choice</span>      311  <span class="m">fork decision</span>
+ [x] <span class="i">◆ block-check</span>       308
+ [x] <span class="i">◆ rollback</span>            2
+ [ ] <span class="i">◆ tx-check</span>        1,940  <span class="m">mempool admit</span>
+ [x] <span class="i">◆ script-eval</span>       614  <span class="m">plutus run</span>
+ [x] <span class="i">◆ store-write</span>     4,102
+ [x] <span class="i">◆ epoch-boundary</span>      0  <span class="m">rewards, snapshots</span>
+ [ ] <span class="i">◆ nonce-update</span>      311
+ [x] <span class="i">◆ peer-verdict</span>       4  <span class="m">marked adversarial</span>
+ [ ] <span class="i">◆ handshake</span>          3
+
+ <span class="m">+ tag the place under the cursor</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">CONDITIONS <span>freeze when…</span></div>
+<div class="pb"> #  on  when                                         then
+ 1  [x] <span class="i">◆ rollback</span>                                    freeze
+ 2  [x] <span class="i">◆ epoch-boundary</span>                              freeze + save tube
+ 3  [x] <span class="i">◆ block-check</span> and block.slot ≥ 91,440,100     freeze
+ 4  [x] <span class="i">◆ wire-in</span> and peer = 10.0.0.14                freeze
+ 5  [ ] <span class="i">◆ script-eval</span> and tx.hash = 5d02…            freeze
+ 6  [x] <span class="i">◆ store-write</span> and column = pots               log only
+ 7  [x] fn amaru_ledger::rules::*  and  returns Err    freeze
+ 8  [x] <span class="i">◆ peer-verdict</span>                                run tool: evidence
+ 9  [ ] step = 60,000                                 freeze
+<span class="sel">10  [x] <span class="i">◆ cbor-decode</span> and bytes.len &gt; 65,535          <span class="r">tamper: truncate 100</span></span>
+
+<span class="m">A condition can freeze, just log, save a cryo-tube,
+tamper automatically, or hand off to a tool.</span></div>
+  </div>
+</div>
+<div class="cmd"><span class="i">freeze❯</span> when ◆ chain-choice and candidates &gt; 1 then freeze<span class="cur"> </span></div>
+<div class="keys"><span><kbd>space</kbd>toggle</span><span><kbd>n</kbd>new condition</span><span><kbd>e</kbd>edit</span><span><kbd>x</kbd>delete</span><span><kbd>w</kbd>save set</span><span><kbd>esc</kbd>back</span></div>
+</div>
+</section>
+
+<!-- ============ SCREEN 3 ============ -->
+<section id="s3" hidden>
+<p class="note"><b>What the node holds.</b> Every store laid out by what it means on Cardano, not as raw database keys. Pick a column, pick an entry, read it decoded, change it. Edits are held as pending until you apply them, and every applied edit is logged.</p>
+<div class="term">
+<div class="bar"><span class="t">❄ STORES</span><span class="pill ice">ON ICE</span><span>step <span class="f">48,212</span></span><span>ledger at <span class="f">#4,118,901</span></span><span class="pill red">2 PENDING EDITS</span></div>
+<div class="grid two">
+  <div class="pane">
+    <div class="ph">COLUMNS <span>entries</span></div>
+<div class="pb"><span class="m">LEDGER (stable, on disk)</span>
+<span class="sel"> utxo                   11,402,118</span>
+ accounts                1,340,221
+ pools                       2,981
+ dreps                       1,207
+ proposals                      38
+ votes                       9,114
+ cc_members                      7
+ pots                            1
+ slots                     432,000
+ recently_pruned_…              12
+
+<span class="m">LEDGER (volatile, in memory)</span>
+ last 2,160 blocks of diffs
+
+<span class="m">CHAIN</span>
+ headers                    86,400
+ blocks                     86,400
+ nonces                          4
+ best chain · anchor · tip
+
+<span class="m">IN MEMORY</span>
+ mempool                    14 tx
+ peer table                 3 peers
+ stage states               10</div>
+  </div>
+  <div class="pane">
+    <div class="ph">utxo <span>/ filter: addr1w8…</span></div>
+<div class="pb"> tx#ix        value          holder
+ <span class="f">09aa…#1</span>      12.00 ₳        addr1w8…
+ <span class="f">1c40…#0</span>   4,000.00 ₳ +2    addr1w8…
+<span class="sel"> <span class="f">77e0…#0</span>   1,204.50 ₳        addr1q9…</span>
+ <span class="f">7b13…#2</span>       1.48 ₳ +1    addr1w8…
+ <span class="f">90de…#0</span>     250.00 ₳        addr1w8…
+ <span class="f">a004…#3</span>      88.10 ₳        addr1w8…
+ <span class="m">… 41 more</span>
+
+<span class="m">find by: tx hash · address · policy id
+         stake key · datum hash · amount</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">ENTRY <span>decoded ▾ · cbor · hex</span></div>
+<div class="pb"><span class="i">utxo 77e0…#0</span>
+ address   addr1q9<span class="f">x2…8fk</span>  <span class="m">payment key + stake key</span>
+<span class="tam"> value     <span class="r">45,000,000,000.00 ₳</span>  <span class="m">was 1,204.50 ₳</span>  <span class="r">PENDING</span></span>
+ assets    <span class="m">none</span>
+ datum     <span class="m">none</span>
+ script    <span class="m">none</span>
+ created   block #4,118,640 · tx 77e0…
+
+<span class="m">referenced by</span>
+ mempool tx <span class="f">5d02…</span> <span class="m">(input 0)</span>
+ block <span class="f">#4,118,902</span> tx 1 <span class="m">← frozen specimen</span>
+
+<span class="m">pending edits</span>
+ 1  utxo 77e0…#0  value → 45B ₳
+ 2  pots.treasury  −45B ₳           <span class="m">keeps total supply honest</span>
+
+<span class="m">history of this key</span>
+ 48,112  written by adopt_chain  <span class="m">block #4,118,640</span>
+ 48,198  read by ValidateTxEffect <span class="m">tx 5d02…</span></div>
+  </div>
+</div>
+<div class="cmd"><span class="i">freeze❯</span> apply edits<span class="cur"> </span>   <span class="m">(writes to the node's stores; saves cryo-tube "pre-edit-48212" first)</span></div>
+<div class="keys"><span><kbd>e</kbd>edit</span><span><kbd>a</kbd>add entry</span><span><kbd>x</kbd>delete entry</span><span><kbd>A</kbd>apply</span><span><kbd>R</kbd>revert</span><span><kbd>h</kbd>key history</span><span><kbd>g</kbd>go to reference</span><span><kbd>esc</kbd>back</span></div>
+</div>
+</section>
+
+<!-- ============ SCREEN 4 ============ -->
+<section id="s4" hidden>
+<p class="note"><b>The piping for later.</b> Everything the screens do goes through one small set of commands (freeze, thaw, step, read, write, inject, drop, subscribe). A tool is any program that speaks those same commands, so new security tests plug in without touching the debugger or the node. This rail lists them; the right side shows one running.</p>
+<div class="term">
+<div class="bar"><span class="t">❄ TOOL RAIL</span><span class="pill ice">ON ICE</span><span>step <span class="f">48,212</span></span><span>tools dir <span class="f">dwarf/freeze-tools/</span></span></div>
+<div class="grid two">
+  <div class="pane">
+    <div class="ph">TOOLS <span>built in</span></div>
+<div class="pb"><span class="m">MESSAGES</span>
+ drop · delay · duplicate · reorder
+ inject a message
+ replay a recorded message
+<span class="m">BYTES</span>
+<span class="sel"> mutate cbor</span>
+ truncate · pad · bit-flip
+<span class="m">TIME</span>
+ skew the node's clock
+ fire a timer now
+<span class="m">STATE</span>
+ save / restore cryo-tube
+ diff two cryo-tubes
+ diff against a second node
+<span class="m">RECORD</span>
+ export as DWARF evidence
+ export as replayable script
+
+<span class="m">YOURS</span>
+ <span class="g">+ add a tool</span>
+ eclipse-one-peer.py
+ kes-rollover-probe.py</div>
+  </div>
+  <div class="pane">
+    <div class="ph">mutate cbor <span>target: specimen</span></div>
+<div class="pb"> target   Block #4,118,902 · tx 1
+ field    <span class="f">redeemers[0].ex_units</span>
+
+ strategy
+  ( ) boundary values
+<span class="sel">  (●) type confusion</span>
+  ( ) length lies
+  ( ) duplicate map keys
+  ( ) indefinite-length
+  ( ) from corpus  <span class="m">dwarf/corpora/…</span>
+
+ after each try
+  [x] step to next cold spot
+  [x] record verdict
+  [x] restore cryo-tube
+  [ ] stop on first crash
+
+ tries    200
+ seed     <span class="f">0x5eed0001</span></div>
+  </div>
+  <div class="pane">
+    <div class="ph">RUN <span>41 / 200</span></div>
+<div class="pb"> try  change                         node said
+  37  mem: uint → bytes(8)            rejected  <span class="m">decode</span>
+  38  cpu: uint → negative            rejected  <span class="m">decode</span>
+  39  ex_units: [2] → [3]             rejected  <span class="m">decode</span>
+  40  mem: uint → bignum tag 2        <span class="y">ACCEPTED</span>  <span class="m">reached script-eval</span>
+<span class="tam">  41  cpu: uint → bignum tag 2        <span class="r">PANIC</span>     <span class="m">amaru_plutus::…</span></span>
+
+<span class="r">frozen on try 41</span> — node panicked inside
+ amaru_plutus::machine::cost_model::…
+ <span class="m">cryo-tube "try-41-pre" saved · timeline kept</span>
+
+ <span class="m">what a tool is</span>
+ a program that connects to the same socket the
+ TUI uses and sends the same commands. Any
+ language. It can also register new cold spots,
+ new decoders for the SPECIMEN pane, and new
+ columns here.</div>
+  </div>
+</div>
+<div class="cmd"><span class="i">freeze❯</span> tool run eclipse-one-peer.py --peer 10.0.0.14<span class="cur"> </span></div>
+<div class="keys"><span><kbd>enter</kbd>run</span><span><kbd>p</kbd>pause tool</span><span><kbd>o</kbd>open try in main view</span><span><kbd>E</kbd>export evidence</span><span><kbd>esc</kbd>back</span></div>
+</div>
+</section>
+
+<div class="fb">
+  <h2>Review notes</h2>
+  <textarea id="notes" placeholder="What's wrong, what's missing, what you'd never use…"></textarea>
+  <button id="send">Save notes</button><span id="sent"></span>
+</div>
+</div>
+<script>
+const tip=document.createElement('div');tip.id='tip';document.body.appendChild(tip);
+document.addEventListener('mousemove',e=>{const t=e.target.closest('[data-tip]');if(!t){tip.style.display='none';return}
+ tip.textContent=t.dataset.tip;tip.style.display='block';
+ const x=Math.min(e.clientX+14,innerWidth-340),y=e.clientY+18+tip.offsetHeight>innerHeight?e.clientY-tip.offsetHeight-10:e.clientY+18;
+ tip.style.left=Math.max(8,x)+'px';tip.style.top=y+'px'});
+const KEY='dwarf-freeze-mockups-v4';
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+  try{localStorage.setItem(KEY+'-tab',b.dataset.t)}catch(e){}
+});
+const n=document.getElementById('notes');
+try{n.value=localStorage.getItem(KEY)||'';const t=localStorage.getItem(KEY+'-tab');if(t)document.querySelector('[data-t='+t+']').click()}catch(e){}
+n.oninput=()=>{try{localStorage.setItem(KEY,n.value)}catch(e){}};
+document.getElementById('send').onclick=()=>{
+  try{localStorage.setItem(KEY,n.value)}catch(e){}
+  const s=document.getElementById('sent');
+  s.textContent='saved locally ❄';
+};
+</script>
+</body>
+</html>

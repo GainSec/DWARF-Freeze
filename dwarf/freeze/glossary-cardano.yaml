@@ -1,0 +1,119 @@
+# Cardano network terms. The wire format is the same for every node implementation, so this
+# file is shared by all of them. Same entry format as glossary.yaml; entries here win.
+
+"rollforward": {label: "RollForward", cls: kind, what: "A peer says: here is the next block header on my chain.", why: "The header is untrusted until it has been checked."}
+"rollbackward": {label: "RollBackward", cls: kind, what: "A peer says: undo back to an earlier point, my chain went a different way.", why: "Rollbacks are how forks are delivered."}
+"requestnext": {label: "RequestNext", cls: kind, what: "This node asks a peer for the next header on its chain."}
+"awaitreply": {label: "AwaitReply", cls: kind, what: "A peer says it has nothing new yet and will answer when it does."}
+"findintersect": {label: "FindIntersect", cls: kind, what: "A node lists points on its chain and asks which one the peer also has."}
+"intersectfound": {label: "IntersectFound", cls: kind, what: "A peer names the newest point both chains share.", why: "Decides where syncing starts; a lie here can make a node re-download or follow a fork."}
+"intersectnotfound": {label: "IntersectNotFound", cls: kind, what: "A peer says the two chains share none of the offered points."}
+"requestrange": {label: "RequestRange", cls: kind, what: "This node asks a peer for the full blocks between two points."}
+"startbatch": {label: "StartBatch", cls: kind, what: "A peer announces it is about to send the requested blocks."}
+"noblocks": {label: "NoBlocks", cls: kind, what: "A peer says it does not have the requested blocks."}
+"batchdone": {label: "BatchDone", cls: kind, what: "A peer says it has sent all the requested blocks."}
+"clientdone": {label: "ClientDone", cls: kind, what: "This node tells a peer it will ask for no more blocks."}
+"block": {label: "Block", cls: kind, what: "A full block: a batch of transactions one stake pool produced for one slot.", why: "Everything inside is untrusted until the ledger rules have been applied."}
+"proposeversions": {label: "ProposeVersions", cls: kind, what: "The first message on a connection: the protocol versions this node can speak.", why: "Version downgrade attacks start here."}
+"acceptversion": {label: "AcceptVersion", cls: kind, what: "A peer picks one of the proposed protocol versions."}
+"refuse": {label: "Refuse", cls: kind, what: "A peer declines the connection."}
+"queryreply": {label: "QueryReply", cls: kind, what: "A peer answers a version query without opening a real connection."}
+"requesttxids": {label: "RequestTxIds", cls: kind, what: "A node asks a peer which transactions it has to offer."}
+"replytxids": {label: "ReplyTxIds", cls: kind, what: "A peer lists transactions it can send."}
+"requesttxs": {label: "RequestTxs", cls: kind, what: "A node asks a peer for the transactions it chose."}
+"replytxs": {label: "ReplyTxs", cls: kind, what: "A peer sends full transactions.", why: "Untrusted transactions enter the mempool path here."}
+"init": {label: "Init", cls: kind, what: "Opens the transaction-submission mini-protocol."}
+"done": {label: "Done", cls: kind, what: "Ends a mini-protocol cleanly."}
+"keepalive": {label: "KeepAlive", cls: kind, what: "A ping that proves a peer is still there.", why: "Its timeouts decide when a peer is dropped."}
+"keepaliveresponse": {label: "KeepAliveResponse", cls: kind, what: "A peer answers a keep-alive ping."}
+"sharerequest": {label: "ShareRequest", cls: kind, what: "A node asks a peer to recommend other peers."}
+"sharepeers": {label: "SharePeers", cls: kind, what: "A peer recommends other peers.", why: "A way for an attacker to advertise their own nodes."}
+
+"message": {label: "message", cls: field, what: "The number that says which message of the mini-protocol this is."}
+"era": {label: "era", cls: field, what: "Which generation of Cardano's rules this was made under (7 is Conway)."}
+"header": {label: "header", cls: field, what: "The small signed label on the front of a block.", why: "Nodes check this before downloading the block."}
+"header_body": {label: "header body", cls: field, what: "The signed part of the block header."}
+"kes_signature": {label: "kes signature", cls: field, what: "The pool's signature over the header, made with its short-lived key.", why: "An invalid signature must make the node reject the header."}
+"block_number": {label: "block number", cls: field, what: "How many blocks came before this one.", why: "Longer chains win."}
+"slot": {label: "slot", cls: field, what: "The one-second time slot something belongs to.", why: "Blocks from the future or the far past must be refused."}
+"prev_hash": {label: "previous block", cls: field, what: "Hash of the block this one builds on.", why: "This is what links blocks into a chain."}
+"issuer_vkey": {label: "issuer key", cls: field, what: "The public key of the pool that made this block."}
+"vrf_vkey": {label: "vrf key", cls: field, what: "The public key the lottery proof is checked against."}
+"vrf_result": {label: "vrf result", cls: field, what: "The pool's lottery ticket for this slot with its proof.", why: "A forged one would let anyone make blocks."}
+"vrf_output": {label: "vrf output", cls: field, what: "The pool's lottery ticket for this slot."}
+"vrf_proof": {label: "vrf proof", cls: field, what: "Proof that the pool really won the lottery to make a block in this slot.", why: "A forged one would let anyone make blocks."}
+"block_body_size": {label: "body size", cls: field, what: "Size of the block's transactions in bytes, as the header claims it.", why: "A lie here is a cheap way to make a node misjudge a block."}
+"block_body_hash": {label: "body hash", cls: field, what: "Fingerprint of all the transactions in the block.", why: "Ties the header to the body so the body cannot be swapped."}
+"operational_cert": {label: "operational certificate", cls: field, what: "The pool's permission slip for its current short-lived signing key.", why: "A replayed old certificate must be refused."}
+"hot_vkey": {label: "hot key", cls: field, what: "The pool's current short-lived signing key."}
+"sequence_number": {label: "certificate number", cls: field, what: "Counter of the pool's operational certificate.", why: "An older number than one already seen must be refused."}
+"kes_period": {label: "kes period", cls: field, what: "Which short-lived signing key period the certificate starts at.", why: "Old periods must be refused or stolen old keys could sign blocks."}
+"cold_signature": {label: "cold signature", cls: field, what: "The pool's long-term key vouching for its short-lived key."}
+"protocol_version": {label: "protocol version", cls: field, what: "The rule-set version the block claims to follow."}
+"major": {label: "major", cls: field, what: "Major protocol version."}
+"minor": {label: "minor", cls: field, what: "Minor protocol version."}
+"transaction_bodies": {label: "transactions", cls: field, what: "The payments and other actions carried in this block."}
+"transaction_witness_sets": {label: "signatures and scripts", cls: field, what: "For each transaction, the signatures and scripts that authorise it."}
+"auxiliary_data": {label: "metadata", cls: field, what: "Optional extra data attached to transactions."}
+"invalid_transactions": {label: "failed-script transactions", cls: field, what: "Positions of transactions whose smart contract failed; they only pay collateral.", why: "Marking a valid transaction as failed, or the reverse, changes who pays what."}
+"inputs": {label: "inputs", cls: field, what: "The unspent outputs a transaction spends.", why: "Each must exist and not already be spent."}
+"outputs": {label: "outputs", cls: field, what: "Where a transaction's money goes."}
+"fee": {label: "fee", cls: field, what: "What the sender pays to have a transaction processed.", why: "Must be at least the minimum the protocol works out from size and script cost."}
+"ttl": {label: "expires at slot", cls: field, what: "The last slot in which this transaction may be included."}
+"validity_start": {label: "valid from slot", cls: field, what: "The first slot in which this transaction may be included."}
+"certificates": {label: "certificates", cls: field, what: "Stake registrations, delegations and pool operations."}
+"withdrawals": {label: "withdrawals", cls: field, what: "Rewards taken out of stake accounts.", why: "Must not exceed what the account holds."}
+"auxiliary_data_hash": {label: "metadata hash", cls: field, what: "Fingerprint of the transaction's metadata."}
+"mint": {label: "mint", cls: field, what: "Tokens created or destroyed by this transaction.", why: "Needs the minting policy's authorisation."}
+"script_data_hash": {label: "script data hash", cls: field, what: "Fingerprint tying the transaction to its script arguments and cost model."}
+"collateral": {label: "collateral", cls: field, what: "Money forfeited if a smart contract fails.", why: "Makes failed scripts cost something."}
+"required_signers": {label: "required signers", cls: field, what: "Keys that must sign so that scripts can see them."}
+"network_id": {label: "network", cls: field, what: "0 for test networks, 1 for mainnet."}
+"collateral_return": {label: "collateral change", cls: field, what: "Where unused collateral goes back to."}
+"total_collateral": {label: "total collateral", cls: field, what: "How much collateral the transaction declares."}
+"reference_inputs": {label: "reference inputs", cls: field, what: "Outputs the transaction reads without spending."}
+"voting_procedures": {label: "votes", cls: field, what: "Governance votes cast by this transaction."}
+"proposal_procedures": {label: "proposals", cls: field, what: "Governance proposals made by this transaction."}
+"treasury_value": {label: "treasury value", cls: field, what: "What the transaction claims the treasury currently holds."}
+"donation": {label: "treasury donation", cls: field, what: "Money given to the treasury."}
+"transaction_id": {label: "transaction id", cls: field, what: "The hash that identifies a transaction."}
+"transaction_ids": {label: "transaction ids", cls: field, what: "Hashes identifying transactions."}
+"transactions": {label: "transactions", cls: field, what: "Full transactions."}
+"output_index": {label: "output number", cls: field, what: "Which output of that transaction is meant."}
+"address": {label: "address", cls: field, what: "Who can spend an output: a key or a script."}
+"value": {label: "amount", cls: field, what: "How much money, and which tokens, an output holds."}
+"datum": {label: "datum", cls: field, what: "Data attached to an output for a smart contract to read."}
+"datum_hash": {label: "datum hash", cls: field, what: "Fingerprint of the data a smart contract will be given."}
+"script_ref": {label: "reference script", cls: field, what: "A script stored in an output for others to use."}
+"vkey_witnesses": {label: "signatures", cls: field, what: "Public keys with their signatures over the transaction.", why: "A transaction missing a needed signature must be refused."}
+"vkey": {label: "public key", cls: field, what: "A public key."}
+"signature": {label: "signature", cls: field, what: "A signature."}
+"native_scripts": {label: "native scripts", cls: field, what: "Simple multi-signature and time-lock scripts."}
+"bootstrap_witnesses": {label: "byron signatures", cls: field, what: "Signatures for old Byron-era addresses."}
+"plutus_v1_scripts": {label: "plutus v1 scripts", cls: field, what: "Smart contracts, first version."}
+"plutus_v2_scripts": {label: "plutus v2 scripts", cls: field, what: "Smart contracts, second version."}
+"plutus_v3_scripts": {label: "plutus v3 scripts", cls: field, what: "Smart contracts, third version."}
+"plutus_data": {label: "script data", cls: field, what: "Data values supplied to smart contracts."}
+"redeemers": {label: "redeemers", cls: field, what: "Arguments handed to smart contracts with their compute budget."}
+"point": {label: "point", cls: field, what: "A position on a chain: a slot and the hash of the block there."}
+"points": {label: "points", cls: field, what: "Positions on a chain."}
+"from_point": {label: "from", cls: field, what: "The first block wanted."}
+"to_point": {label: "to", cls: field, what: "The last block wanted."}
+"tip": {label: "tip", cls: field, what: "The newest block of the peer's chain, as the peer claims it."}
+"hash": {label: "hash", cls: field, what: "The fingerprint that identifies a block."}
+"cookie": {label: "cookie", cls: field, what: "A number echoed back in the keep-alive answer.", why: "A wrong echo should make the node drop the peer."}
+"versions": {label: "versions", cls: field, what: "Protocol versions on offer, each with its parameters."}
+"version": {label: "version", cls: field, what: "The protocol version chosen."}
+"parameters": {label: "parameters", cls: field, what: "Settings agreed for the connection."}
+"network_magic": {label: "network id", cls: field, what: "The number that identifies which Cardano network this is.", why: "Nodes must refuse peers from another network."}
+"initiator_only": {label: "initiator only", cls: field, what: "Whether the peer only dials out and will not serve requests."}
+"peer_sharing": {label: "peer sharing", cls: field, what: "Whether the peer is willing to recommend other peers."}
+"query": {label: "query", cls: field, what: "Whether this is only a version query, not a real connection."}
+"reason": {label: "reason", cls: field, what: "Why the connection was refused."}
+"blocking": {label: "blocking", cls: field, what: "Whether the peer should wait until it has something to offer."}
+"acknowledge": {label: "acknowledge", cls: field, what: "How many previously offered transactions are now dealt with."}
+"request": {label: "request", cls: field, what: "How many more transaction ids are wanted."}
+"size": {label: "size", cls: field, what: "Size in bytes."}
+"amount": {label: "how many", cls: field, what: "How many peers are wanted."}
+"peers": {label: "peers", cls: field, what: "Recommended peers."}
+"bytes": {label: "bytes", cls: field, what: "Raw bytes exactly as they crossed the network, before any decoding.", why: "Editing here reaches code paths that decoded messages cannot."}

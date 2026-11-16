@@ -1,0 +1,478 @@
+# Plain names and explanations for everything the Freeze UI shows.
+#
+# Each entry: label (what to display), cls (colour class), what (what it is),
+# why (why it matters for security). cls is one of:
+#   field  - a field inside a message or record
+#   kind   - a kind of thing (a message type, a record type)
+#   part   - a part of the node (a stage, a store)
+#   action - something the node does (an effect)
+# Lookup is by the last path segment of a name, lower-cased, with any trailing "-<n>"
+# and the suffixes "Effect", "Msg" and "Message" removed. Names with no entry are shown
+# with underscores turned into spaces.
+
+# --- Parts of the node (Amaru stages) -----------------------------------------------------
+"manager":
+  label: "connection manager"
+  cls: part
+  what: "Opens, tracks and closes connections to other nodes."
+  why: "Decides who the node talks to; a confused manager can be starved of honest peers."
+"peer_selection":
+  label: "peer selection"
+  cls: part
+  what: "Chooses which peers to dial and which to drop."
+  why: "An attacker who controls this choice can surround the node with their own peers (an eclipse)."
+"track_peers":
+  label: "track peers"
+  cls: part
+  what: "Follows what each neighbour says its chain is and checks the block headers they announce."
+  why: "First place untrusted headers are judged."
+"select_chain":
+  label: "select chain"
+  cls: part
+  what: "Decides which of the competing chains the node should follow."
+  why: "A wrong choice here means following an attacker's fork."
+"fetch_blocks":
+  label: "fetch blocks"
+  cls: part
+  what: "Downloads the full blocks for the chain that was chosen."
+  why: "Handles large untrusted downloads and decides which peer to blame when they are bad."
+"validate_block":
+  label: "validate block"
+  cls: part
+  what: "Decides whether a full block is valid by applying every ledger rule."
+  why: "A wrong answer here lets an invalid block into the chain."
+"adopt_chain":
+  label: "adopt chain"
+  cls: part
+  what: "Makes a validated block part of the node's own chain and tells others."
+  why: "After this the block is treated as true."
+"mempool":
+  label: "mempool"
+  cls: part
+  what: "The waiting room for transactions that are not in a block yet."
+  why: "Open to anyone; a target for flooding and for invalid transactions."
+"block_source":
+  label: "block source"
+  cls: part
+  what: "Serves the node's blocks and headers to peers that ask."
+  why: "What the node tells others must match what it believes."
+"accept":
+  label: "accept connections"
+  cls: part
+  what: "Waits for other nodes to connect in."
+  why: "The front door."
+"connector":
+  label: "connector"
+  cls: part
+  what: "Dials out to a chosen peer."
+"connect-worker":
+  label: "dial worker"
+  cls: part
+  what: "One attempt to open a connection to a peer."
+"mux":
+  label: "multiplexer"
+  cls: part
+  what: "Splits one network connection into the separate mini-protocols and reassembles their messages."
+  why: "Parses length-prefixed frames from untrusted bytes; a classic place for size and buffer bugs."
+"reader":
+  label: "socket reader"
+  cls: part
+  what: "Reads raw bytes from one peer's connection."
+  why: "The first code to touch untrusted bytes."
+"writer":
+  label: "socket writer"
+  cls: part
+  what: "Writes raw bytes to one peer's connection."
+"handshake":
+  label: "handshake"
+  cls: part
+  what: "Agrees a protocol version and network with a peer when a connection opens."
+  why: "Version downgrade and wrong-network confusion start here."
+"chainsync":
+  label: "chain sync"
+  cls: part
+  what: "The mini-protocol in which a peer announces its chain header by header."
+  why: "Carries untrusted headers and rollback instructions."
+"blockfetch":
+  label: "block fetch"
+  cls: part
+  what: "The mini-protocol used to download full blocks from a peer."
+  why: "Carries untrusted block bodies."
+"tx_submission":
+  label: "tx submission"
+  cls: part
+  what: "The mini-protocol in which peers offer and send transactions."
+  why: "Carries untrusted transactions."
+"keepalive":
+  label: "keep alive"
+  cls: part
+  what: "Periodic ping that proves a peer is still there and measures its delay."
+  why: "Its timeouts decide when a peer is dropped."
+"peer_sharing":
+  label: "peer sharing"
+  cls: part
+  what: "The mini-protocol in which peers recommend other peers."
+  why: "A way for an attacker to advertise their own nodes."
+"cleanup_replies":
+  label: "reply cleanup"
+  cls: part
+  what: "Housekeeping for block-fetch requests that were answered or abandoned."
+"ledger-check":
+  label: "ledger peer check"
+  cls: part
+  what: "Periodically asks the ledger which registered relays could be dialled."
+
+# --- Things the node does (effects) -------------------------------------------------------
+"send":
+  label: "send"
+  cls: action
+  what: "One part of the node hands a message to another part."
+"reply":
+  label: "reply"
+  cls: action
+  what: "One part of the node answers a question another part asked."
+"call":
+  label: "ask"
+  cls: action
+  what: "One part of the node asks another a question and waits for the answer."
+"clock":
+  label: "read clock"
+  cls: action
+  what: "The node looks at the time."
+  why: "Time decides which slot it is; a node with the wrong time accepts or rejects the wrong blocks."
+"wait":
+  label: "wait"
+  cls: action
+  what: "The node pauses for a set time."
+"schedule":
+  label: "set timer"
+  cls: action
+  what: "The node arranges to be woken later."
+"cancel schedule":
+  label: "cancel timer"
+  cls: action
+  what: "The node cancels a timer it set."
+"set timeout":
+  label: "set timeout"
+  cls: action
+  what: "The node gives something a deadline."
+  why: "Timeouts are what an attacker stretches or triggers."
+"clear timeout":
+  label: "clear timeout"
+  cls: action
+  what: "The node removes a deadline."
+"add stage":
+  label: "create part"
+  cls: action
+  what: "The node creates a new internal part, for example for a new connection."
+"start stage":
+  label: "start part"
+  cls: action
+  what: "The node starts a newly created internal part with its first state."
+"terminate":
+  label: "stop part"
+  cls: action
+  what: "An internal part of the node shuts itself down."
+"validateheader":
+  label: "check header"
+  cls: action
+  what: "Checks a block header - that the pool really won the slot and signed the header."
+  why: "Forged headers must fail here."
+"validateblock":
+  label: "check block"
+  cls: action
+  what: "Runs every ledger rule against a full block - fees, signatures, scripts, balances."
+  why: "The main defence against invalid blocks."
+"validatetx":
+  label: "check transaction"
+  cls: action
+  what: "Runs the ledger rules against one transaction before it enters the mempool."
+  why: "Keeps invalid transactions out."
+"loadheader":
+  label: "load header"
+  cls: action
+  what: "Reads a block header from the chain store."
+"loadblock":
+  label: "load block"
+  cls: action
+  what: "Reads a full block from the chain store."
+"storeblock":
+  label: "store block"
+  cls: action
+  what: "Writes a full block to the chain store."
+  why: "After this the block is on disk whether or not it is valid yet."
+"storevalidatedheader":
+  label: "store header"
+  cls: action
+  what: "Writes a checked header to the chain store."
+"setbestchaintip":
+  label: "set chain tip"
+  cls: action
+  what: "Records which block is the tip of the chain the node follows."
+  why: "Changing this changes what the node believes is the present."
+"setanchorpoint":
+  label: "set anchor"
+  cls: action
+  what: "Records the oldest point the node can still roll back to."
+"setblockvalid":
+  label: "mark block valid"
+  cls: action
+  what: "Records the verdict on a block in the chain store."
+"switchtofork":
+  label: "switch fork"
+  cls: action
+  what: "Abandons the current chain for a competing one."
+  why: "The moment a rollback really happens."
+"rollforwardchain":
+  label: "extend chain"
+  cls: action
+  what: "Adds a block to the end of the chain the node follows."
+"putnonces":
+  label: "store nonces"
+  cls: action
+  what: "Saves the randomness values that decide future slot leaders."
+  why: "Wrong nonces mean wrong leaders."
+"getnonces":
+  label: "load nonces"
+  cls: action
+  what: "Reads the randomness values used to check slot leaders."
+"hasheader":
+  label: "have header?"
+  cls: action
+  what: "Checks whether a header is already stored."
+"hasblock":
+  label: "have block?"
+  cls: action
+  what: "Checks whether a block is already stored."
+"recv":
+  label: "read from peer"
+  cls: action
+  what: "Reads bytes from a peer's connection."
+  why: "Untrusted bytes enter here."
+"listen":
+  label: "listen"
+  cls: action
+  what: "Opens the port other nodes connect to."
+"connect":
+  label: "dial peer"
+  cls: action
+  what: "Opens a connection to a peer."
+"close":
+  label: "hang up"
+  cls: action
+  what: "Closes a peer's connection."
+"peeradversarial":
+  label: "mark peer hostile"
+  cls: action
+  what: "Records that a peer misbehaved."
+  why: "The node's punishment; check it fires when it should and not when it should not."
+"generaterandomseed":
+  label: "draw random number"
+  cls: action
+  what: "The node asks for randomness."
+  why: "Predictable randomness makes peer choice predictable."
+"insert":
+  label: "add to mempool"
+  cls: action
+  what: "Puts a transaction into the mempool."
+"removetxs":
+  label: "remove from mempool"
+  cls: action
+  what: "Takes transactions out of the mempool."
+"findbestcandidate":
+  label: "find best chain"
+  cls: action
+  what: "Looks up the best chain candidate among those the peers announced."
+"selectoutbound":
+  label: "pick peers to dial"
+  cls: action
+  what: "Chooses which candidate peers to connect to."
+"resolvepeercandidate":
+  label: "look up address"
+  cls: action
+  what: "Turns a peer's host name into an address."
+"sourcecounts":
+  label: "count peer sources"
+  cls: action
+  what: "Counts how many candidate peers came from each source."
+
+# --- Kinds of thing -----------------------------------------------------------------------
+"rollforward":
+  label: "RollForward"
+  cls: kind
+  what: "A peer says: here is the next block on my chain."
+"rollbackward":
+  label: "RollBackward"
+  cls: kind
+  what: "A peer says: undo back to an earlier block, my chain went a different way."
+  why: "Rollbacks are how forks are delivered."
+"block":
+  label: "Block"
+  cls: kind
+  what: "A batch of transactions that one stake pool produced for one slot."
+"header":
+  label: "Header"
+  cls: kind
+  what: "The small signed label on the front of a block."
+  why: "Nodes check this before downloading the block."
+"point":
+  label: "Point"
+  cls: kind
+  what: "A position on a chain - a slot number and the hash of the block there."
+"tip":
+  label: "Tip"
+  cls: kind
+  what: "The newest block of a chain."
+"transaction":
+  label: "Transaction"
+  cls: kind
+  what: "A payment or other action submitted to the chain."
+"initialize":
+  label: "Initialize"
+  cls: kind
+  what: "The first message a part of the node receives when it starts."
+
+# --- Fields ------------------------------------------------------------------------------
+"slot":
+  label: "slot"
+  cls: field
+  what: "The one-second time slot something belongs to."
+  why: "Blocks from the future or the far past must be refused."
+"block_number":
+  label: "block number"
+  cls: field
+  what: "How many blocks came before this one."
+  why: "Longer chains win."
+"block_height":
+  label: "block height"
+  cls: field
+  what: "How many blocks came before this one."
+  why: "Longer chains win."
+"prev_hash":
+  label: "previous block"
+  cls: field
+  what: "Hash of the block this one builds on."
+  why: "This is what links blocks into a chain."
+"hash":
+  label: "hash"
+  cls: field
+  what: "The fingerprint that identifies this item."
+"issuer":
+  label: "issuer"
+  cls: field
+  what: "The stake pool that made this block."
+"issuer_vkey":
+  label: "issuer key"
+  cls: field
+  what: "The public key of the pool that made this block."
+"vrf_proof":
+  label: "vrf proof"
+  cls: field
+  what: "Proof that the pool really won the lottery to make a block in this slot."
+  why: "A forged one would let anyone make blocks."
+"vrf_result":
+  label: "vrf result"
+  cls: field
+  what: "The pool's lottery ticket for this slot with its proof."
+  why: "A forged one would let anyone make blocks."
+"vrf_vkey":
+  label: "vrf key"
+  cls: field
+  what: "The public key the lottery proof is checked against."
+"kes_period":
+  label: "kes period"
+  cls: field
+  what: "Which short-lived signing key the pool used."
+  why: "Old periods must be refused or stolen old keys could sign blocks."
+"operational_cert":
+  label: "operational certificate"
+  cls: field
+  what: "The pool's permission slip for its current short-lived signing key."
+  why: "A replayed old certificate must be refused."
+"body_hash":
+  label: "body hash"
+  cls: field
+  what: "Fingerprint of all the transactions in the block."
+  why: "Ties the header to the body so the body cannot be swapped."
+"block_body_hash":
+  label: "body hash"
+  cls: field
+  what: "Fingerprint of all the transactions in the block."
+  why: "Ties the header to the body so the body cannot be swapped."
+"block_body_size":
+  label: "body size"
+  cls: field
+  what: "Size of the block's transactions in bytes as the header claims it."
+  why: "A lie here is a cheap way to make a node misjudge a block."
+"protocol_version":
+  label: "protocol version"
+  cls: field
+  what: "The rule-set version the block claims to follow."
+"fee":
+  label: "fee"
+  cls: field
+  what: "What the sender pays to have a transaction processed."
+  why: "Must be at least the minimum the protocol works out from size and script cost."
+"inputs":
+  label: "inputs"
+  cls: field
+  what: "The unspent outputs a transaction spends."
+  why: "Each must exist and not already be spent."
+"outputs":
+  label: "outputs"
+  cls: field
+  what: "Where a transaction's money goes."
+"collateral":
+  label: "collateral"
+  cls: field
+  what: "Money forfeited if a smart contract fails."
+  why: "Makes failed scripts cost something."
+"redeemers":
+  label: "redeemers"
+  cls: field
+  what: "Arguments handed to smart contracts with their compute budget."
+"ex_units":
+  label: "budget"
+  cls: field
+  what: "Memory and CPU a smart contract may use."
+  why: "Exceeding it must fail the transaction."
+"peer":
+  label: "peer"
+  cls: field
+  what: "Another node this node is connected to or knows about."
+"address":
+  label: "address"
+  cls: field
+  what: "A network address or a payment address depending on context."
+"port":
+  label: "port"
+  cls: field
+  what: "The network port a peer listens on."
+"conn":
+  label: "connection"
+  cls: field
+  what: "Which open network connection this is about."
+"data":
+  label: "data"
+  cls: field
+  what: "Raw bytes."
+"bytes":
+  label: "byte count"
+  cls: field
+  what: "How many bytes to read."
+"timeout":
+  label: "timeout"
+  cls: field
+  what: "How long the node will wait before giving up."
+"trace_id":
+  label: "trace id"
+  cls: field
+  what: "An identifier used only for the node's own logging."
+"span_id":
+  label: "span id"
+  cls: field
+  what: "An identifier used only for the node's own logging."
+"trace_context":
+  label: "trace context"
+  cls: field
+  what: "Identifiers used only for the node's own logging."

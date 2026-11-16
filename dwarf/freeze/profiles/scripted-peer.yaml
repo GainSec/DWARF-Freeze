@@ -1,0 +1,9 @@
+name: scripted-peer
+about: "A peer you script. amaru-relay-2 is the node under test and follows amaru-relay-1 instead of a block producer; amaru-relay-1 is also a Freeze node, so rules on what it sends (to peers) put altered messages on the wire to the node under test."
+compose: antithesis/cardano_amaru_relay_bootstrap_control/docker-compose.yaml
+target: amaru-relay-2
+also: [amaru-relay-1]
+node_environment:
+  amaru-relay-2:
+    AMARU_PEER: "amaru-relay-1.example:3000"
+resign: false

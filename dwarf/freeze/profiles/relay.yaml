@@ -1,0 +1,6 @@
+name: relay
+about: Three Haskell block producers and two Amaru relays; Freeze is the first relay, fed by producer p1. The default.
+compose: antithesis/cardano_amaru_relay_bootstrap_control/docker-compose.yaml
+target: amaru-relay-1
+network: testnet_42
+resign: true

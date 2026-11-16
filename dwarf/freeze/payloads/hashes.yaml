@@ -1,0 +1,7 @@
+name: 32-byte hashes
+description: Well-known 32-byte values to put where a block or transaction hash belongs.
+values:
+  - "0x0000000000000000000000000000000000000000000000000000000000000000"
+  - "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  - "0x0101010101010101010101010101010101010101010101010101010101010101"
+  - "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"

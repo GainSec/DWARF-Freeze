@@ -1,0 +1,6 @@
+name: miniprotocol-security
+about: DWARF's mini-protocol security layout (producers, relays, an Amaru victim and a fuzzer); Freeze is the first Amaru relay.
+compose: antithesis/cardano_amaru_miniprotocol_security/docker-compose.yaml
+target: amaru-relay-1
+network: testnet_42
+resign: true

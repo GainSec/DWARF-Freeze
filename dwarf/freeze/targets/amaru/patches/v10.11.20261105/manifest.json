@@ -1,0 +1,74 @@
+{
+  "schema": "dwarf-freeze-recipe-v1",
+  "implementation": "amaru",
+  "source": "v10.11.20261105",
+  "toolchain": "nightly-2026-09-04",
+  "crate": "amaru-freeze",
+  "patches": [
+    "0001-freeze-hooks.patch"
+  ],
+  "build": [
+    "cargo",
+    "build",
+    "--locked",
+    "-p",
+    "amaru",
+    "--bin",
+    "amaru"
+  ],
+  "binary": "target/debug/amaru",
+  "capabilities": [
+    "cause",
+    "effects:edit",
+    "events:filter",
+    "inject",
+    "inject:typed",
+    "internal_action",
+    "internal_input",
+    "internal_result",
+    "internal_state",
+    "probes",
+    "proto_in",
+    "proto_out",
+    "resign:devnet-block-body",
+    "resign:devnet-header",
+    "state:chain",
+    "state:chain:write",
+    "state:ledger",
+    "state:ledger:write",
+    "state:stages",
+    "time",
+    "trace",
+    "wire_in",
+    "wire_out"
+  ],
+  "crates": [
+    "amaru-freeze",
+    "amaru-freeze-macros"
+  ],
+  "trace": [
+    "amaru-consensus",
+    "amaru-ledger",
+    "amaru-protocols",
+    "amaru-ouroboros",
+    "amaru-stores",
+    "amaru-mempool",
+    "amaru-network"
+  ],
+  "ported_from": "v10.11.20261105",
+  "missing": [],
+  "left_out": {},
+  "ported_at": "2026-11-16T08:41:22Z",
+  "inherited": [
+    "crates/amaru-ouroboros/src/kes/mod.rs"
+  ],
+  "run": [
+    "node",
+    "run"
+  ],
+  "bootstrap": [
+    "node",
+    "bootstrap"
+  ],
+  "crate_dir": "crate"
+}

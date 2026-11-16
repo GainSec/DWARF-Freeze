@@ -1,0 +1,6 @@
+name: relay-pair
+about: "Both Amaru relays are Freeze nodes, each with its own agent: amaru-relay-1 (fed by p1) and amaru-relay-2 (fed by p2). Compare how two nodes take the same chain, or tamper with one and watch the other."
+compose: antithesis/cardano_amaru_relay_bootstrap_control/docker-compose.yaml
+target: amaru-relay-1
+also: [amaru-relay-2]
+resign: true

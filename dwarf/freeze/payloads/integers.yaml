@@ -1,0 +1,4 @@
+name: integer boundaries
+description: Whole numbers at the edges of the sizes nodes store them in. Use on slots, block numbers, fees, sizes, counters.
+values: [0, 1, 23, 24, 255, 256, 65535, 65536, 2147483647, 2147483648, 4294967295, 4294967296,
+         9223372036854775807, "9223372036854775808", "18446744073709551615", "18446744073709551616", -1, "-9223372036854775808"]

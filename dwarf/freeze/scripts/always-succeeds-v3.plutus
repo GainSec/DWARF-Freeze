@@ -1,0 +1,5 @@
+{
+    "type": "PlutusScriptV3",
+    "description": "always succeeds; for exercising script evaluation on a closed devnet",
+    "cborHex": "450101002499"
+}

@@ -1,0 +1,3 @@
+name: nearby numbers
+description: The original number nudged or scaled. Use to find off-by-one checks and overflow in arithmetic.
+values: ["add:1", "sub:1", "add:2", "sub:2", "mul:2", "mul:1000", "add:4294967296", "sub:4294967296"]

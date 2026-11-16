@@ -1,0 +1,6 @@
+name: relay-2
+about: The same devnet with Freeze as the second Amaru relay, fed by producer p2.
+compose: antithesis/cardano_amaru_relay_bootstrap_control/docker-compose.yaml
+target: amaru-relay-2
+network: testnet_42
+resign: true

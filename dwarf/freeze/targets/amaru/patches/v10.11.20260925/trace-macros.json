@@ -1,0 +1,6 @@
+{
+  "files": [
+    "crates/amaru-stores/src/rocksdb/mod.rs"
+  ],
+  "functions": 25
+}

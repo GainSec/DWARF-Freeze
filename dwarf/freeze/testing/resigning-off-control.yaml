@@ -1,0 +1,8 @@
+name: controlled devnet stale-signature control
+description: With re-signing explicitly off, make the same block body size edit.
+rules:
+  - name: stale-signature block-size edit
+    when: kind=proto_in and type=ouroboros/2 and [0]=2
+    field: header_body.block_body_size
+    values: ["add:1000000"]
+    expect: [InvalidKesSignature]

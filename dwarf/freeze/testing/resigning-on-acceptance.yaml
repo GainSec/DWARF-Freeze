@@ -1,0 +1,12 @@
+name: controlled devnet re-signing acceptance
+description: Let one inbound header through untouched, then change only its declared block body size.
+rules:
+  - name: untouched header control
+    when: kind=proto_in and type=ouroboros/2 and [0]=2
+    action: forward
+    count: 1
+  - name: signed block-size edit
+    when: kind=proto_in and type=ouroboros/2 and [0]=2
+    field: header_body.block_body_size
+    values: ["add:1000000"]
+    expect: [BlockSizeMismatch]

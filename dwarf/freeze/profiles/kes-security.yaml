@@ -1,0 +1,6 @@
+name: kes-security
+about: DWARF's KES security layout (producers, Haskell relays, Amaru relays, KES proxy and victim); Freeze is the first Amaru relay.
+compose: antithesis/cardano_amaru_kes_security/docker-compose.yaml
+target: amaru-relay-1
+network: testnet_42
+resign: true

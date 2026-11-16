@@ -1,0 +1,3 @@
+name: byte string damage
+description: The original bytes shortened, lengthened, zeroed or with one bit changed. Use on hashes, keys, signatures and proofs.
+values: ["empty", "trunc:1", "trunc:31", "append:00", "append:ff", "zero", "ones", "flip:0", "flip:7", "repeat:2", "len:65536"]
